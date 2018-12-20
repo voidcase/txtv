@@ -2,16 +2,33 @@ import bs4
 import requests as rq
 import colorama
 from colorama import Fore, Back, Style
-from sys import argv
+import sys
+
+
+def err(txt):
+    print(Fore.RED + txt + Fore.RESET, file=sys.stderr)
+    sys.exit(1)
+
+
+def get_page(num) -> list:
+    res = rq.get(f'https://www.svt.se/svttext/web/pages/{num}.html')
+    if res.status_code == 404:
+        err(f'There is no page number {num}. Pretty sure they start at 100.')
+    elif res.status_code != 200:
+        err(f'When i tried to get the page i just got HTTP status code {res.status_code}.')
+    soup = bs4.BeautifulSoup(res.content, 'html.parser')
+    root = soup.find('pre', class_='root')
+    rows = root.find_all('span')
+    return rows
 
 
 if __name__ == '__main__':
     colorama.init()
-    page = int(argv[1])
-    res = rq.get(f'https://www.svt.se/svttext/web/pages/{page}.html')
-    soup = bs4.BeautifulSoup(res.content, 'html.parser')
-    root = soup.find('pre', class_='root')
-    rows = root.find_all('span')
+    try:
+        page = int(sys.argv[1])
+    except ValueError:
+        err('txtv <PAGE>\nexample: txtv 130')
+    rows = get_page(page)
     for row in rows:
         if row.get_text() == ' ' or 'bgB' in row.attrs['class']:
             continue
