@@ -10,6 +10,18 @@ def err(txt):
     sys.exit(1)
 
 
+def get_page_number() -> int:
+    if len(sys.argv) == 0:
+        return 100
+    try:
+        num = int(sys.argv[1])
+    except ValueError:
+        err('txtv <PAGE>\nexample: txtv 130')
+    if num < 0:
+        err('don\'t be so negative.')
+    return num
+
+
 def get_page(num) -> list:
     res = rq.get(f'https://www.svt.se/svttext/web/pages/{num}.html')
     if res.status_code == 404:
@@ -22,13 +34,7 @@ def get_page(num) -> list:
     return rows
 
 
-if __name__ == '__main__':
-    colorama.init()
-    try:
-        page = int(sys.argv[1])
-    except ValueError:
-        err('txtv <PAGE>\nexample: txtv 130')
-    rows = get_page(page)
+def show_page(rows:list):
     for row in rows:
         if row.get_text() == ' ' or 'bgB' in row.attrs['class']:
             continue
@@ -38,4 +44,10 @@ if __name__ == '__main__':
         elif 'Y' in row.attrs['class']:
             style = Style.DIM
         print(style + row.get_text() + Style.RESET_ALL)
+
+if __name__ == '__main__':
+    colorama.init()
+    page_nbr = get_page_number()
+    rows = get_page(page_nbr)
+    show_page(rows)
     colorama.deinit()
