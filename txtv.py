@@ -11,7 +11,7 @@ def err(txt):
 
 
 def get_page_number() -> int:
-    if len(sys.argv) == 0:
+    if len(sys.argv) == 1:
         return 100
     try:
         num = int(sys.argv[1])
