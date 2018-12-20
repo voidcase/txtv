@@ -15,8 +15,10 @@ if __name__ == '__main__':
     for row in rows:
         if row.get_text() == ' ' or 'bgB' in row.attrs['class']:
             continue
-        if 'Y' in row.attrs['class']:
-            print(Fore.YELLOW + row.get_text() + Fore.RESET)
-        else:
-            print(row.get_text())
+        style = ''
+        if 'DH' in row.attrs['class']:
+            style = Fore.YELLOW + Style.BRIGHT
+        elif 'Y' in row.attrs['class']:
+            style = Style.DIM
+        print(style + row.get_text() + Style.RESET_ALL)
     colorama.deinit()
