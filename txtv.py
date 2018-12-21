@@ -31,26 +31,22 @@ def get_page(num) -> list:
         err(f'When i tried to get the page i just got HTTP status code {res.status_code}.')
     soup = bs4.BeautifulSoup(res.content, 'html.parser')
     root = soup.find('pre', class_='root')
-    rows = root.find_all('span')
-    return rows
+    return root
 
 
-def show_page(rows:list):
-    until_next_break = LINEWIDTH
-    for row in rows:
-        # if row.get_text() == ' ' or 'bgB' in row.attrs['class']:
-        #     continue
+def show_page(page):
+    for node in page:
+        if isinstance(node, str):
+            print(node, end='')
+            continue
         style = ''
-        if 'DH' in row.attrs['class']:
+        if 'DH' in node.attrs['class']:
             style = Fore.YELLOW + Style.BRIGHT
-        elif 'Y' in row.attrs['class']:
+        elif 'Y' in node.attrs['class']:
             style = Style.DIM
-        elif 'bgB' in row.attrs['class']:
+        elif 'bgB' in node.attrs['class']:
             style = Fore.BLUE
-        until_next_break -= len(row.get_text())
-        print(style + row.get_text() + Style.RESET_ALL, end=('\n' if until_next_break <= 0 else ''))
-        if until_next_break <= 0:
-            until_next_break = LINEWIDTH
+        print(style + node.get_text() + Style.RESET_ALL, end='')
 
 if __name__ == '__main__':
     colorama.init()
