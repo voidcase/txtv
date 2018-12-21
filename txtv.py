@@ -8,12 +8,14 @@ import sys
 
 LINEWIDTH = 38
 
-def err(txt):
+def err(txt: str):
+    """Prints a red error message and quits with exit code 1."""
     print(Fore.RED + txt + Fore.RESET, file=sys.stderr)
     sys.exit(1)
 
 
 def get_page_number() -> int:
+    """Parses and input validates the page number argument, returns it as an int."""
     if len(sys.argv) > 2:
         err('Maybe we will support more arguments in the future, but not today.')
     if len(sys.argv) == 1:
@@ -27,7 +29,12 @@ def get_page_number() -> int:
     return num
 
 
-def get_page(num: int) -> bs4.element.Tag:
+def get_page(num: int) -> list:
+    """
+    Returns a list of the tags containing
+    the page and potential subpages (type: bs4.element.Tag)
+    on the specified page number. For most pages this will be a list of one element.
+    """
     res = rq.get(f'https://www.svt.se/svttext/web/pages/{num}.html')
     if res.status_code != 200:
         err(f'When i tried to get the page i just got HTTP status code {res.status_code}.')
@@ -37,6 +44,7 @@ def get_page(num: int) -> bs4.element.Tag:
 
 
 def show_page(page: bs4.element.Tag):
+    """Prints the page contained by the specified tag in color.""" 
     for node in page:
         if isinstance(node, str):
             print(node, end='')
