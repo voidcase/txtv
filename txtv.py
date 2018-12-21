@@ -35,29 +35,6 @@ def get_page(num) -> list:
     return rows
 
 
-def _filter_indentation_spans(rows: list) -> list: 
-    return [
-            row for row in rows
-            if not (row.get_text() == ' ' or 'bgB' in row.attrs['class'])
-            ]
-
-def _merge_partial_rows(rows: list) -> list:
-    ret = []
-    itr = iter(rows)
-    while True:
-        row = None
-        try:
-            row = next(itr)
-            while len(row.get_text()) < LINEWIDTH:
-                row.append(next(itr))
-                print('DBG:', row)
-        except StopIteration:
-            break
-        if row:
-            ret.append(row)
-    return ret
-
-
 def show_page(rows:list):
     until_next_break = LINEWIDTH
     for row in rows:
