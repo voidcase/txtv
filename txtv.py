@@ -38,13 +38,15 @@ def get_page(num) -> list:
 def show_page(rows:list):
     until_next_break = LINEWIDTH
     for row in rows:
-        if row.get_text() == ' ' or 'bgB' in row.attrs['class']:
-            continue
+        # if row.get_text() == ' ' or 'bgB' in row.attrs['class']:
+        #     continue
         style = ''
         if 'DH' in row.attrs['class']:
             style = Fore.YELLOW + Style.BRIGHT
         elif 'Y' in row.attrs['class']:
             style = Style.DIM
+        elif 'bgB' in row.attrs['class']:
+            style = Fore.BLUE
         until_next_break -= len(row.get_text())
         print(style + row.get_text() + Style.RESET_ALL, end=('\n' if until_next_break <= 0 else ''))
         if until_next_break <= 0:
