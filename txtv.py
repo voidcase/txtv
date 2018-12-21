@@ -4,6 +4,7 @@ import colorama
 from colorama import Fore, Back, Style
 import sys
 
+LINEWIDTH = 38
 
 def err(txt):
     print(Fore.RED + txt + Fore.RESET, file=sys.stderr)
@@ -34,7 +35,31 @@ def get_page(num) -> list:
     return rows
 
 
+def _filter_indentation_spans(rows: list) -> list: 
+    return [
+            row for row in rows
+            if not (row.get_text() == ' ' or 'bgB' in row.attrs['class'])
+            ]
+
+def _merge_partial_rows(rows: list) -> list:
+    ret = []
+    itr = iter(rows)
+    while True:
+        row = None
+        try:
+            row = next(itr)
+            while len(row.get_text()) < LINEWIDTH:
+                row.append(next(itr))
+                print('DBG:', row)
+        except StopIteration:
+            break
+        if row:
+            ret.append(row)
+    return ret
+
+
 def show_page(rows:list):
+    until_next_break = LINEWIDTH
     for row in rows:
         if row.get_text() == ' ' or 'bgB' in row.attrs['class']:
             continue
@@ -43,7 +68,10 @@ def show_page(rows:list):
             style = Fore.YELLOW + Style.BRIGHT
         elif 'Y' in row.attrs['class']:
             style = Style.DIM
-        print(style + row.get_text() + Style.RESET_ALL)
+        until_next_break -= len(row.get_text())
+        print(style + row.get_text() + Style.RESET_ALL, end=('\n' if until_next_break <= 0 else ''))
+        if until_next_break <= 0:
+            until_next_break = LINEWIDTH
 
 if __name__ == '__main__':
     colorama.init()
