@@ -2,6 +2,8 @@
 
 Text-tv is great! plain, short-form news with no distractions, clickbait, or ads!
 
+![screenshot](https://raw.githubusercontent.com/voidcase/svtxtv/master/svtxtv_screenshot.png)
+
 ## usage
 
 The only argument is the number of the page you want to look at.
