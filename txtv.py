@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import bs4
 import requests as rq
 import colorama
