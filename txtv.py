@@ -25,16 +25,16 @@ def get_page_number() -> int:
     return num
 
 
-def get_page(num) -> list:
+def get_page(num: int) -> bs4.element.Tag:
     res = rq.get(f'https://www.svt.se/svttext/web/pages/{num}.html')
     if res.status_code != 200:
         err(f'When i tried to get the page i just got HTTP status code {res.status_code}.')
     soup = bs4.BeautifulSoup(res.content, 'html.parser')
-    root = soup.find('pre', class_='root')
-    return root
+    subpages = soup.find_all('pre', class_='root')
+    return subpages
 
 
-def show_page(page):
+def show_page(page: bs4.element.Tag):
     for node in page:
         if isinstance(node, str):
             print(node, end='')
@@ -51,6 +51,7 @@ def show_page(page):
 if __name__ == '__main__':
     colorama.init()
     page_nbr = get_page_number()
-    rows = get_page(page_nbr)
-    show_page(rows)
+    subpages = get_page(page_nbr)
+    for page in subpages:
+        show_page(page)
     colorama.deinit()
