@@ -6,6 +6,7 @@ import colorama
 from colorama import Fore, Back, Style
 import sys
 import re
+from util import err
 
 
 def get_page_number() -> int:
@@ -81,11 +82,14 @@ def show_headers():
 
 if __name__ == '__main__':
     colorama.init()
-    if sys.argv[1] == 'head':
+    if len(sys.argv) == 2 and sys.argv[1] == 'head':
         show_headers()
     else:
         page_nbr = get_page_number()
-        subpages = get_page(page_nbr)
+        try:
+            subpages = get_page(page_nbr)
+        except rq.exceptions.ConnectionError:
+            err('Could not connect to network :(')
         for page in subpages:
             show_page(page)
     colorama.deinit()
