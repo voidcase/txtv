@@ -59,15 +59,15 @@ def test_page_loop():
     assert False
 
 
-def show_page(page: bs4.element.Tag, parent_style=''):
-    def nodetext(node):
-        if isinstance(node, str):
-            return node
-        elif isinstance(node, bs4.element.Tag):
-            if node.name == 'a':
-                return Fore.RED + node.get_text() + Fore.RESET + parent_style
-            else:
-                return ''.join([nodetext(child) for child in node.children])
+def show_page(page: bs4.element.Tag):
+    # def nodetext(node, parent_style=''):
+    #     if isinstance(node, str):
+    #         return node
+    #     elif isinstance(node, bs4.element.Tag):
+    #         if node.name == 'a':
+    #             return Fore.RED + node.get_text() + Fore.RESET + parent_style
+    #         else:
+    #             return ''.join([nodetext(child) for child in node.children])
     """Prints the page contained by the specified tag in color.""" 
     for node in page:
         if isinstance(node, str):
@@ -80,7 +80,7 @@ def show_page(page: bs4.element.Tag, parent_style=''):
             style = Style.DIM
         elif 'bgB' in node.attrs['class']:
             style = Fore.BLUE
-        print(style + nodetext(node) + Style.RESET_ALL, end='')
+        print(style + node.get_text() + Style.RESET_ALL, end='')
 
 def show_headers():
     from listing import list_all_articles
