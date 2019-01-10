@@ -2,24 +2,22 @@
 
 import bs4
 import requests as rq
-import colorama
-from colorama import Fore, Back, Style
 import sys
 import re
+import configparser
+import colorama
+from colorama import Fore, Back, Style
 from util import err
+from pathlib import Path
 
+CONFIG_DIR = Path.home() / '.config' / 'svtxtv'
 
-def get_page_number() -> int:
+def validate_page_nbr(arg: str) -> int:
     """
-    Parses and input validates the page number argument,
-    returns it as an int.
+    Validates a page number, returns as int. Complains to user if bad.
     """
-    if len(sys.argv) > 2:
-        err('Maybe we will support more arguments in the future, but not today.')
-    if len(sys.argv) == 1:
-        return 100
     try:
-        num = int(sys.argv[1])
+        num = int(arg)
     except ValueError:
         err('txtv <PAGE>\nexample: txtv 130')
     if num < 100 or num > 999:
@@ -88,12 +86,51 @@ def show_headers():
     for title, page_nbr in articles:
         print(title.ljust(38, '.'), Fore.BLUE + str(page_nbr) + Fore.RESET)
 
+
+def get_or_gen_config(config_path=CONFIG_DIR / 'svtxtv.conf'):
+    cfg = configparser.ConfigParser()
+    if config_path.exists():
+        cfg.read_file(open(config_path, 'r'))
+    else:
+        cfg['color'] = {
+                'header' : 'yellow',
+                'frame' : 'blue',
+                }
+        cfg['alias'] = {
+                '__DEFAULT__' : '100',  # magic alias, will be used when given no arguments.
+                'inrikes':'101',
+                'in':'101',
+                'utrikes':'104',
+                'ut':'104',
+                'innehåll':'700',
+                }
+        if not CONFIG_DIR.exists():
+            CONFIG_DIR.mkdir()
+        cfg.write(open(config_path, 'w'))
+    return cfg
+
+
+def apply_aliases(txt: str, cfg: configparser.ConfigParser) -> str:
+    txt = txt.strip()
+    if 'alias' in cfg and txt in cfg['alias']:
+        return cfg['alias'][txt]
+    else:
+        return txt
+
+
 if __name__ == '__main__':
     colorama.init()
-    if len(sys.argv) == 2 and sys.argv[1] == 'head':
+    cfg = get_or_gen_config()
+    raw_arg = '__DEFAULT__'
+    if len(sys.argv) > 2:
+        err('one arg only plz')
+    if len(sys.argv) == 2:
+        raw_arg = sys.argv[1]
+    real_arg = apply_aliases(raw_arg, cfg)
+    if real_arg == 'head':
         show_headers()
     else:
-        page_nbr = get_page_number()
+        page_nbr = validate_page_nbr(real_arg)
         try:
             subpages = get_page(page_nbr)
         except rq.exceptions.ConnectionError:
