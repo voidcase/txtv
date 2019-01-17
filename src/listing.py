@@ -9,36 +9,47 @@ def is_content_entry(tag: bs4.element.Tag):
     #         c for c in tag.children
     #         if not (isinstance(c, str) and re.match(r' +', c))
     #         ]
-    children = list(tag.children)
+    # children = list(tag.children)
+    # return (
+    #         tag.name == 'span'
+    #         and 'W' in tag.attrs.['class']
+    #         and len(children) >= 2
+    #         and isinstance(children[-1], bs4.element.Tag)
+    #         and all(isinstance(elem, str) for elem in children[:-1])
+    #         and children[-1].name == 'a'
+    #         )
+    pass
     return (
-            tag.name == 'span'
-            and len(children) >= 2
-            and isinstance(children[-1], bs4.element.Tag)
-            and all(isinstance(elem, str) for elem in children[:-1])
-            and children[-1].name == 'a'
+            isinstance(tag, bs4.element.Tag)
+            and tag.name == 'span'
+            and all(not cls.startswith('bg') for cls in tag.attrs['class'])
+            and any((c in tag.attrs['class']) for c in ['W', 'C'])
+            and not re.fullmatch(' *', tag.get_text())
             )
 
 
-def parse_content_entry(tag: bs4.element.Tag) -> tuple:
-    # children = [
-    #         c for c in tag.children
-    #         if not (isinstance(c, str) and re.match(r' +', c))
-    #         ]
-    children = list(tag.children)
-    if is_content_entry(tag):
-        title = re.search(r'^(.+[^.])\.*$', ''.join(children[:-1])).group(1).strip()
-        num = children[-1].get_text()
-        return title, num
-    else:
-        return None, None
-
-
 def parse_content_listing(page: bs4.element.Tag) -> list:
-    return [
-            parse_content_entry(span)
-            for span in page.find_all('span')
-            if is_content_entry(span)
-            ]
+    raw = ''
+    for n in page.children:
+        if isinstance(n, str):
+            raw += n
+            pass
+        elif isinstance(n, bs4.element.Tag):
+            if all((x not in n.attrs['class']) for x in ['bgB', 'bgY', 'Y']):
+                raw += n.get_text()
+    entries = raw.splitlines()
+    entries = [e for e in entries if not re.fullmatch(' *', e)]
+    entries = [parse_content_entry(e) for e in entries]
+    return entries
+
+def parse_content_entry(line: str) -> tuple:
+    m = re.fullmatch(r'(\* )?(.+[^.]).*[^0-9]([0-9]{3})[-f]?', line)
+
+    if m:
+        return (m.group(2).strip(), m.group(3))
+    else:
+        # raise RuntimeError(f'LINE DIDNT MATCH! {line}')
+        return None
 
 def test_content_listing():
     from pprint import pprint

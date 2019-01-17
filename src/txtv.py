@@ -4,13 +4,12 @@ import bs4
 import requests as rq
 import sys
 import re
-import configparser
 import colorama
 from colorama import Fore, Back, Style
 from util import err
 from pathlib import Path
+from config import get_or_gen_config, apply_aliases
 
-CONFIG_DIR = Path.home() / '.config' / 'svtxtv'
 
 def validate_page_nbr(arg: str) -> int:
     """
@@ -49,6 +48,7 @@ def get_page_loop(start_num: int, pattern):
         pages.append(get_page(int(match.group(1)))[0])
     return pages
 
+
 def test_page_loop():
     pages = get_page_loop(101)
     print(f'number of pages = {len(pages)}')
@@ -80,42 +80,14 @@ def show_page(page: bs4.element.Tag):
             style = Fore.BLUE
         print(style + node.get_text() + Style.RESET_ALL, end='')
 
+
 def show_headers():
     from listing import list_all_articles
     articles = list_all_articles()
-    for title, page_nbr in articles:
-        print(title.ljust(38, '.'), Fore.BLUE + str(page_nbr) + Fore.RESET)
-
-
-def get_or_gen_config(config_path=CONFIG_DIR / 'svtxtv.conf'):
-    cfg = configparser.ConfigParser()
-    if config_path.exists():
-        cfg.read_file(open(config_path, 'r'))
-    else:
-        cfg['color'] = {
-                'header' : 'yellow',
-                'frame' : 'blue',
-                }
-        cfg['alias'] = {
-                '__DEFAULT__' : '100',  # magic alias, will be used when given no arguments.
-                'inrikes':'101',
-                'in':'101',
-                'utrikes':'104',
-                'ut':'104',
-                'innehåll':'700',
-                }
-        if not CONFIG_DIR.exists():
-            CONFIG_DIR.mkdir()
-        cfg.write(open(config_path, 'w'))
-    return cfg
-
-
-def apply_aliases(txt: str, cfg: configparser.ConfigParser) -> str:
-    txt = txt.strip()
-    if 'alias' in cfg and txt in cfg['alias']:
-        return cfg['alias'][txt]
-    else:
-        return txt
+    for art in articles:
+        if art:
+            title, page_nbr = art
+            print(title.ljust(38, '.'), Fore.BLUE + str(page_nbr) + Fore.RESET)
 
 
 if __name__ == '__main__':
