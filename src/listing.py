@@ -18,7 +18,6 @@ def is_content_entry(tag: bs4.element.Tag):
     #         and all(isinstance(elem, str) for elem in children[:-1])
     #         and children[-1].name == 'a'
     #         )
-    pass
     return (
             isinstance(tag, bs4.element.Tag)
             and tag.name == 'span'
@@ -42,6 +41,7 @@ def parse_content_listing(page: bs4.element.Tag) -> list:
     entries = [parse_content_entry(e) for e in entries]
     return entries
 
+
 def parse_content_entry(line: str) -> tuple:
     m = re.fullmatch(r'(\* )?(.+[^.]).*[^0-9]([0-9]{3})[-f]?', line)
 
@@ -50,6 +50,7 @@ def parse_content_entry(line: str) -> tuple:
     else:
         # raise RuntimeError(f'LINE DIDNT MATCH! {line}')
         return None
+
 
 def test_content_listing():
     from pprint import pprint
