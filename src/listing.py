@@ -34,7 +34,7 @@ def parse_content_listing(page: bs4.element.Tag) -> list:
             raw += n
             pass
         elif isinstance(n, bs4.element.Tag):
-            if all((x not in n.attrs['class']) for x in ['bgB', 'bgY', 'Y']):
+            if 'class' not in n.attrs or all((x not in n.attrs['class']) for x in ['bgB', 'bgY', 'Y']):
                 raw += n.get_text()
     entries = raw.splitlines()
     entries = [e for e in entries if not re.fullmatch(' *', e)]
