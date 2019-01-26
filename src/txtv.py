@@ -10,6 +10,39 @@ from util import err
 from pathlib import Path
 from config import get_or_gen_config, apply_aliases
 
+class Page:
+    def __init__(self, num: int):
+        self.num = num
+        res = rq.get(f'https://www.svt.se/svttext/web/pages/{num}.html')
+        if res.status_code != 200:
+            err(f'Got HTTP status code {res.status_code}.')
+        soup = bs4.BeautifulSoup(res.content, 'html.parser')
+        self.subpages = soup.find_all('pre', class_='root')
+        pn_links = soup.find('form', id='navform').find_all('a')
+        self.prev, self.next = tuple(int(a.attrs['href'][:3]) for a in pn_links)
+
+    def show(self, subpages=None):
+        """Prints the page contained by the specified tag in color.""" 
+        for page in subpages or self.subpages:
+            for node in page:
+                if isinstance(node, str):
+                    print(node, end='')
+                    continue
+                style = ''
+                if 'DH' in node.attrs['class']:
+                    style = Fore.YELLOW + Style.BRIGHT
+                elif 'Y' in node.attrs['class']:
+                    style = Style.DIM
+                elif 'bgB' in node.attrs['class']:
+                    style = Fore.BLUE
+                print(style + node.get_text() + Style.RESET_ALL, end='')
+
+    def next():
+        return Page(this.next)
+
+    def prev():
+        return Page(this.prev)
+
 
 def validate_page_nbr(arg: str) -> int:
     """
@@ -104,9 +137,8 @@ if __name__ == '__main__':
     else:
         page_nbr = validate_page_nbr(real_arg)
         try:
-            subpages = get_page(page_nbr)
+            page = Page(page_nbr)
+            page.show()
         except rq.exceptions.ConnectionError:
             err('Could not connect to network :(')
-        for page in subpages:
-            show_page(page)
     colorama.deinit()
