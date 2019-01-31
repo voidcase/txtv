@@ -122,24 +122,38 @@ def show_headers():
             title, page_nbr = art
             print(title.ljust(38, '.'), Fore.BLUE + str(page_nbr) + Fore.RESET)
 
+INTERACTIVE_HELP = """
+help -- show this text
+quit, q, exit, EOF-character -- quit
+next, n, j, > -- next available page
+prev, p, k, < -- previous available page
+<any 3 digit number> -- go to the page with that number
+
+commands are case insensitive
+"""
+
 def interactive(start_page: Page):
     start_page.show()
     page = start_page
     running = True
     while running:
         try:
-            cmd = input('> ')
+            cmd = input('> ').strip().lower()
             if cmd == '':
                 pass
             elif cmd == 'help':
                 print('here will be a helptext later') # TODO
             elif cmd in ['quit', 'q', 'exit']:
                 running = False
-            elif cmd.lower() in ['next', 'n', 'j', '>']:
+            elif cmd in ['next', 'n', 'j', '>']:
                 page = Page(page.next)
                 page.show()
-            elif cmd.lower() in ['previous', 'prev', 'p', 'k', '<']:
+            elif cmd in ['previous', 'prev', 'p', 'k', '<']:
                 page = Page(page.prev)
+                page.show()
+            elif re.fullmatch('[1-9][0-9][0-9]',cmd):
+                nbr = int(cmd)
+                page = Page(int(cmd))
                 page.show()
             else:
                 print("That's not a command, type help for help, or quit to quit.")
