@@ -122,8 +122,33 @@ def show_headers():
             title, page_nbr = art
             print(title.ljust(38, '.'), Fore.BLUE + str(page_nbr) + Fore.RESET)
 
+def interactive(start_page: Page):
+    start_page.show()
+    page = start_page
+    running = True
+    while running:
+        try:
+            cmd = input('> ')
+            if cmd == '':
+                pass
+            elif cmd == 'help':
+                print('here will be a helptext later') # TODO
+            elif cmd in ['quit', 'q', 'exit']:
+                running = False
+            elif cmd.lower() in ['next', 'n', 'j', '>']:
+                page = Page(page.next)
+                page.show()
+            elif cmd.lower() in ['previous', 'prev', 'p', 'k', '<']:
+                page = Page(page.prev)
+                page.show()
+            else:
+                print("That's not a command, type help for help, or quit to quit.")
+        except EOFError:
+            running = False
+
 
 if __name__ == '__main__':
+    IFLAG = True
     colorama.init()
     cfg = get_or_gen_config()
     raw_arg = '__DEFAULT__'
@@ -138,7 +163,10 @@ if __name__ == '__main__':
         page_nbr = validate_page_nbr(real_arg)
         try:
             page = Page(page_nbr)
-            page.show()
+            if IFLAG:
+                interactive(page)
+            else:
+                page.show()
         except rq.exceptions.ConnectionError:
             err('Could not connect to network :(')
     colorama.deinit()
