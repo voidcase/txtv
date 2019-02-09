@@ -9,6 +9,8 @@ from colorama import Fore, Back, Style
 from util import err
 from pathlib import Path
 from config import get_or_gen_config, apply_aliases
+import argparse
+
 
 class Page:
     def __init__(self, num: int):
@@ -37,11 +39,11 @@ class Page:
                     style = Fore.BLUE
                 print(style + node.get_text() + Style.RESET_ALL, end='')
 
-    def next():
-        return Page(this.next)
+    def next_page(self):
+        return Page(self.next)
 
-    def prev():
-        return Page(this.prev)
+    def prev_page(self):
+        return Page(self.prev)
 
 
 def validate_page_nbr(arg: str) -> int:
@@ -57,21 +59,6 @@ def validate_page_nbr(arg: str) -> int:
     return num
 
 
-def get_page(num: int) -> list:
-    """
-    Returns a list of the tags containing
-    the page and potential subpages (type: bs4.element.Tag)
-    on the specified page number.
-    For most pages this will be a list of one element.
-    """
-    res = rq.get(f'https://www.svt.se/svttext/web/pages/{num}.html')
-    if res.status_code != 200:
-        err(f'Got HTTP status code {res.status_code}.')
-    soup = bs4.BeautifulSoup(res.content, 'html.parser')
-    subpages = soup.find_all('pre', class_='root')
-    return subpages
-
-
 def get_page_loop(start_num: int, pattern):
     pages = [get_page(start_num)[0]]
     while True:
@@ -80,14 +67,6 @@ def get_page_loop(start_num: int, pattern):
             break
         pages.append(get_page(int(match.group(1)))[0])
     return pages
-
-
-def test_page_loop():
-    pages = get_page_loop(101)
-    print(f'number of pages = {len(pages)}')
-    for p in pages:
-        print(p.get_text())
-    assert False
 
 
 def show_page(page: bs4.element.Tag):
@@ -114,7 +93,78 @@ def show_page(page: bs4.element.Tag):
         print(style + node.get_text() + Style.RESET_ALL, end='')
 
 
-def show_headers():
+def match_command(arg: str, interactive=False):
+    for cmd in commands:
+        if interactive or 'interactive_only' not in cmd or not cmd['interactive_only']:
+            m = re.fullmatch(cmd['pattern'], arg)
+            if m:
+                return cmd, m
+    return None, None
+
+
+def interactive(start_page: Page):
+    start_page.show()
+    state = dict(page=start_page)
+    while True:
+        try:
+            raw = input('> ').strip().lower()
+            cmd, m = match_command(raw, interactive=True)
+            cmd['func'](state=state, match=m)
+        except EOFError:
+            exit(0)
+
+    # while running:
+    #     try:
+    #         cmd = input('> ').strip().lower()
+    #         if cmd == '':
+    #             pass
+    #         elif cmd == 'help':
+    #             print('here will be a helptext later') # TODO
+    #         elif cmd in ['quit', 'q', 'exit']:
+    #             running = False
+    #         elif cmd in ['next', 'n', 'j', '>']:
+    #             page = Page(page.next)
+    #             page.show()
+    #         elif cmd in ['previous', 'prev', 'p', 'k', '<']:
+    #             page = Page(page.prev)
+    #             page.show()
+    #         elif re.fullmatch('[1-9][0-9][0-9]',cmd):
+    #             nbr = int(cmd)
+    #             page = Page(int(cmd))
+    #             page.show()
+    #         else:
+    #             print("That's not a command, type help for help, or quit to quit.")
+    #     except EOFError:
+    #         running = False
+
+
+#####################
+# COMMAND FUNCTIONS #
+#####################
+
+def cmd_help(**kwargs):
+    print('commands:')
+    for cmd in commands:
+        if 'help' in cmd:
+            if 'helpname' in cmd:
+                name = cmd['helpname']
+            else:
+                name = cmd['pattern']
+                name = re.sub('\|', ' | ', name)
+            print('{} -- {}'.format(name, cmd['help']))
+
+
+def cmd_next(state, **kwargs):
+    state['page'] = state['page'].next_page()
+    state['page'].show()
+
+
+def cmd_prev(state, **kwargs):
+    state['page'] = state['page'].prev_page()
+    state['page'].show()
+
+
+def cmd_list(**kwargs):
     from listing import list_all_articles
     articles = list_all_articles()
     for art in articles:
@@ -122,65 +172,80 @@ def show_headers():
             title, page_nbr = art
             print(title.ljust(38, '.'), Fore.BLUE + str(page_nbr) + Fore.RESET)
 
-INTERACTIVE_HELP = """
-help -- show this text
-quit, q, exit, EOF-character -- quit
-next, n, j, > -- next available page
-prev, p, k, < -- previous available page
-<any 3 digit number> -- go to the page with that number
 
-commands are case insensitive
-"""
+def cmd_page(match, state=None, **kwargs):
+    num = validate_page_nbr(match.group(0))
+    if state:
+        state['page'] = Page(num)
+        state['page'].show()
+    else:
+        Page(num).show()
 
-def interactive(start_page: Page):
-    start_page.show()
-    page = start_page
-    running = True
-    while running:
-        try:
-            cmd = input('> ').strip().lower()
-            if cmd == '':
-                pass
-            elif cmd == 'help':
-                print('here will be a helptext later') # TODO
-            elif cmd in ['quit', 'q', 'exit']:
-                running = False
-            elif cmd in ['next', 'n', 'j', '>']:
-                page = Page(page.next)
-                page.show()
-            elif cmd in ['previous', 'prev', 'p', 'k', '<']:
-                page = Page(page.prev)
-                page.show()
-            elif re.fullmatch('[1-9][0-9][0-9]',cmd):
-                nbr = int(cmd)
-                page = Page(int(cmd))
-                page.show()
-            else:
-                print("That's not a command, type help for help, or quit to quit.")
-        except EOFError:
-            running = False
+
+def get_page(num: int) -> list:
+    """
+    Returns a list of the tags containing
+    the page and potential subpages (type: bs4.element.Tag)
+    on the specified page number.
+    For most pages this will be a list of one element.
+    """
+    res = rq.get(f'https://www.svt.se/svttext/web/pages/{num}.html')
+    if res.status_code != 200:
+        err(f'Got HTTP status code {res.status_code}.')
+    soup = bs4.BeautifulSoup(res.content, 'html.parser')
+    subpages = soup.find_all('pre', class_='root')
+    return subpages
+
+commands = [
+    {
+        'pattern' : 'h|\?|help',
+        'func': cmd_help,
+        'help':'show this help text.',
+    },
+    {
+        'pattern' : 'q|quit|exit',
+        'func': lambda **kwargs: sys.exit(0),
+        'help':'quit the program (duh)',
+        'interactive_only' : True,
+    },
+    {
+        'pattern' : 'l|ls|list',
+        'func': cmd_list,
+        'help':'list all articles',
+    },
+    {
+        'pattern':'n|next|>',
+        'func': cmd_next,
+        'interactive_only' : True,
+    },
+    {
+        'pattern':'previous|prev|p|<',
+        'func': cmd_prev,
+        'interactive_only' : True,
+    },
+    {
+        'helpname' : '<PAGE NUMBER>',
+        'pattern':'[0-9]{3}',
+        'func': cmd_page,
+        'help':'show the specified page',
+    },
+]
 
 
 if __name__ == '__main__':
-    IFLAG = True
     colorama.init()
     cfg = get_or_gen_config()
-    raw_arg = '__DEFAULT__'
     if len(sys.argv) > 2:
         err('one arg only plz')
-    if len(sys.argv) == 2:
-        raw_arg = sys.argv[1]
-    real_arg = apply_aliases(raw_arg, cfg)
-    if real_arg == 'head':
-        show_headers()
+    if len(sys.argv) == 1:
+        interactive(Page(100))
     else:
-        page_nbr = validate_page_nbr(real_arg)
-        try:
-            page = Page(page_nbr)
-            if IFLAG:
-                interactive(page)
-            else:
-                page.show()
-        except rq.exceptions.ConnectionError:
-            err('Could not connect to network :(')
+        raw_arg = sys.argv[1]
+        real_arg = apply_aliases(raw_arg, cfg)
+        cmd, m = match_command(real_arg)
+        if cmd:
+            cmd['func'](match=m, cfg=cfg)
+            sys.exit(0)
+        else:
+            err("That's not a command, kompis. 'help' gives you a list of commands.")
     colorama.deinit()
