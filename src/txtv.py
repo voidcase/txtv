@@ -74,6 +74,8 @@ def interactive(start_page: Page):
     while True:
         try:
             raw = input('> ').strip().lower()
+            if raw == '':
+                continue
             cmd, m = match_command(raw, interactive=True)
             if cmd:
                 cmd['func'](state=state, match=m)
