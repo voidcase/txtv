@@ -1,7 +1,17 @@
 import bs4
 import re
-from txtv import get_page_loop, get_page
+from txtv import Page
 from pprint import pprint
+
+
+def get_page_loop(start_num: int, pattern):
+    pages = [Page(start_num)]
+    while True:
+        match = re.search(pattern, pages[-1].subpages[0].get_text())
+        if not match or match.group(1) == str(start_num):
+            break
+        pages.append(Page(int(match.group(1))))
+    return pages
 
 
 def is_content_entry(tag: bs4.element.Tag):
@@ -27,9 +37,9 @@ def is_content_entry(tag: bs4.element.Tag):
             )
 
 
-def parse_content_listing(page: bs4.element.Tag) -> list:
+def parse_content_listing(page: Page) -> list:
     raw = ''
-    for n in page.children:
+    for n in page.subpages[0].children:
         if isinstance(n, str):
             raw += n
             pass
@@ -52,24 +62,6 @@ def parse_content_entry(line: str) -> tuple:
         return None
 
 
-def test_content_listing():
-    from pprint import pprint
-    page = get_page(102)[0]
-    content = parse_content_listing(page)
-    pprint(content)
-    assert False
-
-
-def content_list() -> list:
-    import re
-    itempattern = r'(\w+)\.*(\d\d\d)'
-    page = get_page(700)[0]
-    spans = page.find_all('span')
-    spans = [s for s in spans if len(list(s.children)) >= 2 and s.find('a')]
-    return spans
-    # return [re.findall(itempattern, node.get_text()) for node in page]
-
-
 def list_all_articles():
     full_listing = []
     for nbr in [101, 104]:
@@ -77,3 +69,4 @@ def list_all_articles():
         for p in pages:
             full_listing += parse_content_listing(p)
     return full_listing
+
