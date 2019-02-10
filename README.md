@@ -7,12 +7,22 @@ Now you can read it without touching your mouse or your tv-remote :)
 
 ## Usage
 
-The only argument is the number of the page you want to look at.
-Page 100 is the front page and will be shown if given no arguments.
-Page 700 is the table of contents.
+Running with no arguments will enter interactive mode.
+From there you can run any of these commands:
 
 `
-./txtv.py 140
+help | h | ? -- show this help text.
+quit | q | exit -- quit the program (duh)
+list | ls | l -- list all articles
+next | n | > -- show next available page.
+previous | prev | p | < -- show previous available page.
+<PAGE NUMBER> -- show the page at the specified number
+`
+
+You can also give any of these arguments as an argument to run un-interactively. Except for next and previous, because that would make no sense.
+
+`
+txtv.py 100
 `
 
 ## Links
