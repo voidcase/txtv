@@ -5,11 +5,11 @@ import requests as rq
 import sys
 import re
 import colorama
+import readline
 from colorama import Fore, Back, Style
 from util import err
 from pathlib import Path
 from config import get_or_gen_config, apply_aliases
-import argparse
 
 
 class Page:
