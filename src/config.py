@@ -13,7 +13,6 @@ def get_or_gen_config(config_path: Path = CONFIG_DIR / 'svtxtv.conf'):
                 'frame' : 'blue',
                 }
         cfg['alias'] = {
-                '__DEFAULT__' : '100',  # magic alias, will be used when given no arguments.
                 'inrikes':'101',
                 'in':'101',
                 'utrikes':'104',
