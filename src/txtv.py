@@ -68,12 +68,13 @@ def match_command(arg: str, interactive=False):
     return None, None
 
 
-def interactive(start_page: Page, cfg=None):
+def interactive(start_page: Page, cfg):
     start_page.show()
     state = dict(page=start_page)
     while True:
         try:
-            raw = input('> ').strip().lower()
+            prompt = cfg.get('general', 'prompt')
+            raw = input(prompt or '> ').strip().lower()
             if cfg:
                 raw = apply_aliases(raw, cfg)
             if raw == '':

@@ -19,6 +19,9 @@ def get_or_gen_config(config_path: Path = CONFIG_DIR / 'svtxtv.conf'):
                 'ut':'104',
                 'innehåll':'700',
                 }
+        cfg['general'] = {
+                'prompt': 'txtv> ',
+                }
         if not CONFIG_DIR.exists():
             CONFIG_DIR.mkdir()
         cfg.write(open(config_path, 'w'))
