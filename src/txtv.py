@@ -68,12 +68,14 @@ def match_command(arg: str, interactive=False):
     return None, None
 
 
-def interactive(start_page: Page):
+def interactive(start_page: Page, cfg=None):
     start_page.show()
     state = dict(page=start_page)
     while True:
         try:
             raw = input('> ').strip().lower()
+            if cfg:
+                raw = apply_aliases(raw, cfg)
             if raw == '':
                 continue
             cmd, m = match_command(raw, interactive=True)
@@ -178,7 +180,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         err('one arg only plz')
     if len(sys.argv) == 1:
-        interactive(Page(100))
+        interactive(Page(100), cfg=cfg)
     else:
         raw_arg = sys.argv[1]
         real_arg = apply_aliases(raw_arg, cfg)
