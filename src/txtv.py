@@ -15,13 +15,17 @@ from config import get_or_gen_config, apply_aliases
 class Page:
     def __init__(self, num: int):
         self.num = num
-        res = rq.get(f'https://www.svt.se/svttext/web/pages/{num}.html')
-        if res.status_code != 200:
-            err(f'Got HTTP status code {res.status_code}.')
-        soup = bs4.BeautifulSoup(res.content, 'html.parser')
-        self.subpages = soup.find_all('pre', class_='root')
-        pn_links = soup.find('form', id='navform').find_all('a')
-        self.prev, self.next = tuple(int(a.attrs['href'][:3]) for a in pn_links)
+        url = f'https://www.svt.se/svttext/web/pages/{num}.html'
+        try:
+            res = rq.get(url)
+            if res.status_code != 200:
+                err(f'Got HTTP status code {res.status_code}.')
+            soup = bs4.BeautifulSoup(res.content, 'html.parser')
+            self.subpages = soup.find_all('pre', class_='root')
+            pn_links = soup.find('form', id='navform').find_all('a')
+            self.prev, self.next = tuple(int(a.attrs['href'][:3]) for a in pn_links)
+        except rq.exceptions.RequestException as e:
+            err(f"Could not get '{url}'.")
 
     def show(self, subpages=None):
         """Prints the page contained by the specified tag in color.""" 
@@ -127,13 +131,14 @@ def cmd_list(**kwargs):
 def cmd_page(match, state=None, **kwargs):
     try:
         num = validate_page_nbr(match.group(0))
-        if state:
-            state['page'] = Page(num)
-            state['page'].show()
-        else:
-            Page(num).show()
     except ValueError as e:
         err(str(e), fatal=(state is None))
+        return
+    if state:
+        state['page'] = Page(num)
+        state['page'].show()
+    else:
+        Page(num).show()
 
 
 commands = [
