@@ -8,10 +8,6 @@ def get_or_gen_config(config_path: Path = CONFIG_DIR / 'svtxtv.conf'):
     if config_path.exists():
         cfg.read_file(open(config_path, 'r'))
     else:
-        cfg['color'] = {
-                'header' : 'yellow',
-                'frame' : 'blue',
-                }
         cfg['alias'] = {
                 'inrikes':'101',
                 'in':'101',
