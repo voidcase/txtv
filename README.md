@@ -19,9 +19,14 @@ From there you can run any of these commands:
 
 You can also give any of these arguments as an argument to run un-interactively. Except for next and previous, because that would make no sense.
 
-`
-txtv.py 100
-`
+	txtv.py 100
+
+	txtv.py ls
+
+## Configuration
+
+txtv.py will automatically generate a config file at `~/.config/svtxtv/svtxtv.conf` with default values.
+Right now the most interesting thing there is aliases which work both in CLI mode and interactive mode. You can also change what your interactive prompt looks like if you care about that.
 
 ## Links
 
