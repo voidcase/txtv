@@ -17,7 +17,7 @@ From there you can run any of these commands:
 	previous | prev | p | < -- show previous available page.
 	<PAGE NUMBER> -- show the page at the specified number
 
-You can also give any of these arguments as an argument to run un-interactively. Except for next and previous, because that would make no sense.
+You can also give any of these arguments as an argument to run un-interactively. Except for `next` and `previous`, because that would make no sense.
 
 	txtv.py 100
 
