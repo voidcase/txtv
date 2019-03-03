@@ -1,0 +1,27 @@
+from pathlib import Path
+from setuptools import setup
+
+HERE = Path(__file__).parent
+
+README = (HERE / 'README.md').read_text()
+
+setup(
+        name='svtxtv',
+        version='1.0.0',
+        description='CLI for reading swedish text-tv',
+        long_description=README,
+        long_description_content_type='text/markdown',
+        url='https://github.com/voidcase/svtxtv',
+        author='Isak Lindhé',
+        author_email='isak.e.lindhe@gmail.com',
+        license='GPL3', #TODO
+        py_modules=['svtxtv'],
+        package_dir={'':'src'},
+        classifiers=[
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+            'Environment :: Console',
+            'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+            ]
+)
