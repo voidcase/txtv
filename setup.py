@@ -28,10 +28,10 @@ setup(
             'beautifulsoup4',
             'colorama',
             'requests',
-        ]
+        ],
         entry_points={
             'console_scripts': [
                 'txtv=txtv.txtv:run',
-                ],
+            ],
         }
 )
