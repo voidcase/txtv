@@ -180,7 +180,7 @@ commands = [
 ]
 
 
-if __name__ == '__main__':
+def run():
     colorama.init()
     cfg = get_or_gen_config()
     if len(sys.argv) > 2:
@@ -197,3 +197,7 @@ if __name__ == '__main__':
         else:
             err("That's not a command, kompis. 'txtv.py help' gives you a list of commands.")
     colorama.deinit()
+
+if __name__ == '__main__':
+    run()
+
