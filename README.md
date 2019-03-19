@@ -1,9 +1,9 @@
-# svtxtv - A client for reading swedish text tv in the terminal
+# txtv - A client for reading swedish text tv in the terminal
 
 Text-tv is great! plaintext and to-the-point news with no bullshit.
 Now you can read it without touching your mouse or your tv-remote :)
 
-![screenshot](https://raw.githubusercontent.com/voidcase/svtxtv/master/svtxtv_screenshot.png)
+![screenshot](https://raw.githubusercontent.com/voidcase/txtv/master/svtxtv_screenshot.png)
 
 ## Usage
 
@@ -25,11 +25,11 @@ You can also give any of these arguments as an argument to run un-interactively.
 
 ## Configuration
 
-txtv.py will automatically generate a config file at `~/.config/svtxtv/svtxtv.conf` with default values.
+txtv.py will automatically generate a config file at `~/.config/txtv/config` with default values.
 Right now the most interesting thing there is aliases which work both in CLI mode and interactive mode. You can also change what your interactive prompt looks like if you care about that.
 
 ## Links
 
-Here is the trello for the development of svtxtv: https://trello.com/b/aBI0DpN3/svtxtv
+Here is the trello for the development of txtv: https://trello.com/b/aBI0DpN3/svtxtv
 
 Here is where it's scraping data from: https://www.svt.se/svttext/web/pages/100.html

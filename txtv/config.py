@@ -1,9 +1,9 @@
 from pathlib import Path
 import configparser
 
-CONFIG_DIR = Path.home() / '.config' / 'svtxtv'
+CONFIG_DIR = Path.home() / '.config' / 'txtv'
 
-def get_or_gen_config(config_path: Path = CONFIG_DIR / 'svtxtv.conf'):
+def get_or_gen_config(config_path: Path = CONFIG_DIR / 'config'):
     cfg = configparser.ConfigParser()
     if config_path.exists():
         cfg.read_file(open(config_path, 'r'))
