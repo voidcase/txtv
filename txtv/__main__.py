@@ -1,4 +1,4 @@
-from svtxtv.txtv import run
+from txtv.txtv import run
 
 if __name__ == '__main__':
     run()

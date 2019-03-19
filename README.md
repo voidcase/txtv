@@ -30,6 +30,6 @@ Right now the most interesting thing there is aliases which work both in CLI mod
 
 ## Links
 
-Here is the trello for the development of txtv: https://trello.com/b/aBI0DpN3/svtxtv
+Here is the trello for the development of txtv: https://trello.com/b/aBI0DpN3/txtv
 
 Here is where it's scraping data from: https://www.svt.se/svttext/web/pages/100.html

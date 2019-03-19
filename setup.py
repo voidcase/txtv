@@ -24,10 +24,14 @@ setup(
             'Environment :: Console',
             'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
             ],
+        install_requires=[
+            'beautifulsoup4',
+            'colorama',
+            'requests',
+        ]
         entry_points={
             'console_scripts': [
-                'svtxtv=svtxtv.txtv:run',
-                'txtv=svtxtv.txtv:run',
+                'txtv=txtv.txtv:run',
                 ],
         }
 )
