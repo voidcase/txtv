@@ -5,9 +5,21 @@ Now you can read it without touching your mouse or your tv-remote :)
 
 ![screenshot](https://raw.githubusercontent.com/voidcase/txtv/master/svtxtv_screenshot.png)
 
+## Installation
+
+Right now you can install it by first cloning the repo somewhere, then installing with pip
+
+	git clone https://github.com/voidcase/txtv.git
+	pip install --user ./txtv
+
+I'm gonna try to publish it in PyPi soon.
+
 ## Usage
 
 Running with no arguments will enter interactive mode.
+
+	txtv
+
 From there you can run any of these commands:
 
 	help | h | ? -- show this help text.
@@ -17,15 +29,15 @@ From there you can run any of these commands:
 	previous | prev | p | < -- show previous available page.
 	<PAGE NUMBER> -- show the page at the specified number
 
-You can also give any of these arguments as an argument to run un-interactively. Except for `next` and `previous`, because that would make no sense.
+You can also give any of these commands as an argument on the normal command line to run un-interactively. Except for `quit`, `next`, and `previous`, because that would make no sense.
 
-	txtv.py 100
+	txtv 100  # show page 100
 
-	txtv.py ls
+	txtv ls   # list all news articles
 
 ## Configuration
 
-txtv.py will automatically generate a config file at `~/.config/txtv/config` with default values.
+txtv.py will automatically generate a config file at `~/.config/txtv/txtv.cfg` with default values.
 Right now the most interesting thing there is aliases which work both in CLI mode and interactive mode. You can also change what your interactive prompt looks like if you care about that.
 
 ## Links
