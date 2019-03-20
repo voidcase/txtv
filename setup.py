@@ -1,5 +1,5 @@
 from pathlib import Path
-from setuptools import setup
+from setuptools import setup, find_packages
 
 HERE = Path(__file__).parent
 
@@ -19,7 +19,7 @@ setup(
         author_email='isak.e.lindhe@gmail.com',
         license='GPLv3+',
         py_modules=['txtv'],
-        packages=setuptools.find_packages(),
+        packages=find_packages(),
         classifiers=[
             'Programming Language :: Python :: 3',
             'Programming Language :: Python :: 3.6',
