@@ -16,7 +16,7 @@ setup(
         author_email='isak.e.lindhe@gmail.com',
         license='GPLv3+',
         py_modules=['txtv'],
-        package_dir={'':'src'},
+        packages=setuptools.find_packages(),
         classifiers=[
             'Programming Language :: Python :: 3',
             'Programming Language :: Python :: 3.6',
