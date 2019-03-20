@@ -7,12 +7,7 @@ Now you can read it without touching your mouse or your tv-remote :)
 
 ## Installation
 
-Right now you can install it by first cloning the repo somewhere, then installing with pip
-
-	git clone https://github.com/voidcase/txtv.git
-	pip install --user ./txtv
-
-I'm gonna try to publish it in PyPi soon.
+	pip install --user txtv
 
 ## Usage
 
