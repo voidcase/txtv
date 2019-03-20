@@ -106,7 +106,7 @@ def cmd_help(**kwargs):
             else:
                 name = cmd['pattern']
                 name = re.sub(r'\|', r' | ', name)
-            print('{} -- {}'.format(name, cmd['help']))
+            print('{} -- {}{}'.format(name, cmd['help'], ' (only in interactive mode)' if 'interactive_only' in cmd and cmd['interactive_only'] else ''))
 
 
 def cmd_next(state, **kwargs):
