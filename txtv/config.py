@@ -2,8 +2,9 @@ from pathlib import Path
 import configparser
 
 CONFIG_DIR = Path.home() / '.config' / 'txtv'
+CONFIG_DEFAULT_PATH = CONFIG_DIR / 'txtv.cfg'
 
-def get_or_gen_config(config_path: Path = CONFIG_DIR / 'config'):
+def get_or_gen_config(config_path: Path = CONFIG_DEFAULT_PATH):
     cfg = configparser.ConfigParser()
     if config_path.exists():
         cfg.read_file(open(config_path, 'r'))
