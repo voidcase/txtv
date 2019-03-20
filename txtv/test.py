@@ -2,7 +2,7 @@ from pytest import fixture
 
 
 def test_help(capsys):
-    from txtv import cmd_help, commands
+    from txtv.txtv import cmd_help, commands
     cmd_help()
     cap = capsys.readouterr()
     assert len(cap.out.splitlines()) == 1 + len([c for c in commands if 'help' in c]) # header + commands
@@ -11,7 +11,7 @@ def test_help(capsys):
 
 def test_list(capsys):
     import re
-    from txtv import cmd_list, Page
+    from txtv.txtv import cmd_list, Page
     from colorama import Fore
     cmd_list()
     cap = capsys.readouterr()

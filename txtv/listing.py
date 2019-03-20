@@ -1,6 +1,6 @@
 import bs4
 import re
-from txtv import Page
+from txtv.txtv import Page
 from pprint import pprint
 
 

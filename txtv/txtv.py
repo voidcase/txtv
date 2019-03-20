@@ -7,9 +7,9 @@ import re
 import colorama
 import readline
 from colorama import Fore, Back, Style
-from util import err
 from pathlib import Path
-from config import get_or_gen_config, apply_aliases
+from txtv.util import err
+from txtv.config import get_or_gen_config, apply_aliases
 
 
 class Page:
@@ -105,7 +105,7 @@ def cmd_help(**kwargs):
                 name = cmd['helpname']
             else:
                 name = cmd['pattern']
-                name = re.sub('\|', ' | ', name)
+                name = re.sub(r'\|', r' | ', name)
             print('{} -- {}'.format(name, cmd['help']))
 
 
@@ -120,7 +120,7 @@ def cmd_prev(state, **kwargs):
 
 
 def cmd_list(**kwargs):
-    from listing import list_all_articles
+    from txtv.listing import list_all_articles
     articles = list_all_articles()
     for art in articles:
         if art:
@@ -144,7 +144,7 @@ def cmd_page(match, state=None, **kwargs):
 commands = [
     {
         'helpname':         'help | h | ?',
-        'pattern':          'h|\?|help',
+        'pattern':          r'h|\?|help',
         'func':             cmd_help,
         'help':             'show this help text.',
     },
