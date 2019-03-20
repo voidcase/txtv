@@ -195,7 +195,7 @@ def run():
             cmd['func'](match=m, cfg=cfg)
             sys.exit(0)
         else:
-            err("That's not a command, kompis. 'txtv.py help' gives you a list of commands.")
+            err("That's not a command, kompis. 'txtv help' gives you a list of commands.")
     colorama.deinit()
 
 if __name__ == '__main__':
