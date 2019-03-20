@@ -5,13 +5,16 @@ HERE = Path(__file__).parent
 
 README = (HERE / 'README.md').read_text()
 
+VERSION = '1.0.0'
+
 setup(
         name='txtv',
-        version='1.0.0',
+        version=VERSION,
         description='CLI for reading swedish text-tv',
         long_description=README,
         long_description_content_type='text/markdown',
         url='https://github.com/voidcase/txtv',
+        download_url=f'https://github.com/voidcase/txtv/archive/v{VERSION}.tar.gz',
         author='Isak Lindhé',
         author_email='isak.e.lindhe@gmail.com',
         license='GPLv3+',
