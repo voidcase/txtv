@@ -173,7 +173,7 @@ commands = [
     },
     {
         'helpname':         '<PAGE NUMBER>',
-        'pattern':          '[0-9]{3}',
+        'pattern':          '[0-9]+',
         'func':             cmd_page,
         'help':             'show the specified page',
     },
