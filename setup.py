@@ -26,7 +26,11 @@ setup(
             'Programming Language :: Python :: 3.7',
             'Environment :: Console',
             'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-            ],
+            'Operating System :: POSIX',
+            'Operating System :: MacOS',
+            'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary',
+            'Natural Language :: Swedish',
+            ]
         install_requires=[
             'beautifulsoup4',
             'colorama',
