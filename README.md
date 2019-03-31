@@ -3,7 +3,7 @@
 Text-tv is great! plaintext and to-the-point news with no bullshit.
 Now you can read it without touching your mouse or your tv-remote :)
 
-![screenshot](https://raw.githubusercontent.com/voidcase/txtv/master/txtv_screenshot.png)
+![screenshot](https://raw.githubusercontent.com/voidcase/txtv/master/screenshot.png)
 
 ## Installation
 
