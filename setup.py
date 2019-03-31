@@ -30,12 +30,12 @@ setup(
             'Operating System :: MacOS',
             'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: News/Diary',
             'Natural Language :: Swedish',
-            ]
+            ],
         install_requires=[
             'beautifulsoup4',
             'colorama',
             'requests',
-        ],
+            ],
         entry_points={
             'console_scripts': [
                 'txtv=txtv.txtv:run',
