@@ -35,6 +35,28 @@ You can also give any of these commands as an argument on the normal command lin
 txtv.py will automatically generate a config file at `~/.config/txtv/txtv.cfg` with default values.
 Right now the most interesting thing there is aliases which work both in CLI mode and interactive mode. You can also change what your interactive prompt looks like if you care about that.
 
+## Varför är inte denna texten på svenska, din ynkrygg?
+
+Jag funderade på att skriva om readme och all text i programmet till svenska, eftersom man inte har så mycket nytta av det om man inte kan svenska ändå. Den huvudsakliga anledningen är att jag skrev det först på engelska av ren vana och har bara inte fått tummen ur nog att ändra det. Gör gärna en pull request om du känner att det är viktigt :)
+
+du kan fortfarande köra med svenska kommandon om du lägger detta i din config fil:
+
+	[alias]
+		hjälp = help
+		ut = quit
+		lista = list
+		nästa = next
+		förra = prev
+
+eller på skånska
+
+	[alias]
+		HjilpMaj = help
+		LäggAuv = quit
+		RaddaOpEt = list
+		Nista = next
+		NäeGåTebauka = prev
+
 ## Links
 
 Here is the trello for the development of txtv: https://trello.com/b/aBI0DpN3/txtv
