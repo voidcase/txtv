@@ -125,7 +125,7 @@ def cmd_list(**kwargs):
     for art in articles:
         if art:
             title, page_nbr = art
-            print(title.ljust(38, '.'), Fore.BLUE + str(page_nbr) + Fore.RESET)
+            print(title.ljust(36, '.'), Fore.BLUE + str(page_nbr) + Fore.RESET)
 
 
 def cmd_page(match, state=None, **kwargs):
