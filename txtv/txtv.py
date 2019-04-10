@@ -25,7 +25,7 @@ class Page:
         except rq.exceptions.RequestException as e:
             err(f"Could not get '{url}'.")
 
-    def show(self, subpages=None):
+    def show(self, subpages=None) -> str:
         """Prints the page contained by the specified tag in color."""
         out = ""
         for page in subpages or self.subpages:
@@ -63,7 +63,7 @@ def validate_page_nbr(arg: str) -> int:
     return num
 
 
-def match_command(arg: str, interactive=False):
+def match_command(arg: str, interactive: bool=False) -> tuple:
     for cmd in commands:
         if interactive or 'interactive_only' not in cmd or not cmd['interactive_only']:
             m = re.fullmatch(cmd['pattern'], arg)
@@ -72,7 +72,7 @@ def match_command(arg: str, interactive=False):
     return None, None
 
 
-def interactive(start_page: Page, cfg):
+def interactive(start_page: Page, cfg: configparser.ConfigParser):
     print(start_page.show())
     state = dict(page=start_page)
     while True:
@@ -97,7 +97,7 @@ def interactive(start_page: Page, cfg):
  #####################
 
 
-def cmd_help(**kwargs):
+def cmd_help(**kwargs) -> str:
     out = 'commands:\n'
     for cmd in commands:
         if 'help' in cmd:
@@ -115,17 +115,17 @@ def cmd_help(**kwargs):
     return out
 
 
-def cmd_next(state, **kwargs):
+def cmd_next(state: dict, **kwargs) -> str:
     state['page'] = state['page'].next_page()
     return state['page'].show()
 
 
-def cmd_prev(state, **kwargs):
+def cmd_prev(state: dict, **kwargs) -> str:
     state['page'] = state['page'].prev_page()
     return state['page'].show()
 
 
-def cmd_list(**kwargs):
+def cmd_list(**kwargs) -> str:
     from txtv.listing import list_all_articles
     out = ''
     articles = list_all_articles()
@@ -136,7 +136,7 @@ def cmd_list(**kwargs):
     return out
 
 
-def cmd_page(match, state=None, cfg: configparser.ConfigParser=None, **kwargs):
+def cmd_page(match, state: dict=None, cfg: configparser.ConfigParser=None, **kwargs) -> str:
     try:
         num = validate_page_nbr(match.group(0))
     except ValueError as e:

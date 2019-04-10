@@ -4,7 +4,7 @@ from txtv.txtv import Page
 from pprint import pprint
 
 
-def get_page_loop(start_num: int, pattern):
+def get_page_loop(start_num: int, pattern: str) -> list:
     pages = [Page(start_num)]
     while True:
         match = re.search(pattern, pages[-1].subpages[0].get_text())
@@ -14,7 +14,7 @@ def get_page_loop(start_num: int, pattern):
     return pages
 
 
-def is_content_entry(tag: bs4.element.Tag):
+def is_content_entry(tag: bs4.element.Tag) -> bool:
     # children = [
     #         c for c in tag.children
     #         if not (isinstance(c, str) and re.match(r' +', c))
@@ -62,7 +62,7 @@ def parse_content_entry(line: str) -> tuple:
         return None
 
 
-def list_all_articles():
+def list_all_articles() -> list:
     full_listing = []
     for nbr in [101, 104]:
         pages = get_page_loop(nbr, r'Fler rubriker ([0-9]{3})')

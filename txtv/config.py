@@ -11,7 +11,7 @@ CONFIG_DEFAULT_VALUES = {
     },
 }
 
-def get_config(config_path: Path = CONFIG_DEFAULT_PATH):
+def get_config(config_path: Path = CONFIG_DEFAULT_PATH) -> configparser.ConfigParser:
     cfg = configparser.ConfigParser()
     cfg.read_dict(CONFIG_DEFAULT_VALUES)
     if config_path and config_path.exists():
