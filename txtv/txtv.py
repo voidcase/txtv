@@ -132,7 +132,7 @@ def cmd_list(**kwargs):
     for art in articles:
         if art:
             title, page_nbr = art
-            out += title.ljust(36, '.') + Fore.BLUE + str(page_nbr) + Fore.RESET + '\n'
+            out += title.ljust(37, '.') + Fore.BLUE + str(page_nbr) + Fore.RESET + '\n'
     return out
 
 
