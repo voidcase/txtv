@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import bs4
 import requests as rq
 import sys
@@ -9,7 +7,7 @@ import readline
 from colorama import Fore, Back, Style
 from pathlib import Path
 from txtv.util import err
-from txtv.config import get_or_gen_config, apply_aliases
+from txtv.config import get_config, apply_aliases, configparser
 
 
 class Page:
@@ -28,11 +26,12 @@ class Page:
             err(f"Could not get '{url}'.")
 
     def show(self, subpages=None):
-        """Prints the page contained by the specified tag in color.""" 
+        """Prints the page contained by the specified tag in color."""
+        out = ""
         for page in subpages or self.subpages:
             for node in page:
                 if isinstance(node, str):
-                    print(node, end='')
+                    out += str(node)
                     continue
                 style = ''
                 if 'DH' in node.attrs['class']:
@@ -41,7 +40,8 @@ class Page:
                     style = Style.DIM
                 elif 'bgB' in node.attrs['class']:
                     style = Fore.BLUE
-                print(style + node.get_text() + Style.RESET_ALL, end='')
+                out += str(style + node.get_text() + Style.RESET_ALL)
+        return out
 
     def next_page(self):
         return Page(self.next)
@@ -73,7 +73,7 @@ def match_command(arg: str, interactive=False):
 
 
 def interactive(start_page: Page, cfg):
-    start_page.show()
+    print(start_page.show())
     state = dict(page=start_page)
     while True:
         try:
@@ -85,10 +85,10 @@ def interactive(start_page: Page, cfg):
                 continue
             cmd, m = match_command(raw, interactive=True)
             if cmd:
-                cmd['func'](state=state, match=m)
+                print(cmd['func'](state=state, match=m), end='')
             else:
                 err("That's not a command, kompis. 'help' gives you a list of commands.", fatal=False)
-        except EOFError:
+        except (EOFError, KeyboardInterrupt):
             exit(0)
 
 
@@ -98,7 +98,7 @@ def interactive(start_page: Page, cfg):
 
 
 def cmd_help(**kwargs):
-    print('commands:')
+    out = 'commands:\n'
     for cmd in commands:
         if 'help' in cmd:
             if 'helpname' in cmd:
@@ -106,39 +106,47 @@ def cmd_help(**kwargs):
             else:
                 name = cmd['pattern']
                 name = re.sub(r'\|', r' | ', name)
-            print('{} -- {}{}'.format(name, cmd['help'], ' (only in interactive mode)' if 'interactive_only' in cmd and cmd['interactive_only'] else ''))
+            out += ('{} -- {}{}\n'.format(
+                name,
+                cmd['help'],
+                ' (only in interactive mode)'
+                    if 'interactive_only' in cmd and cmd['interactive_only'] else ''
+                ))
+    return out
 
 
 def cmd_next(state, **kwargs):
     state['page'] = state['page'].next_page()
-    state['page'].show()
+    return state['page'].show()
 
 
 def cmd_prev(state, **kwargs):
     state['page'] = state['page'].prev_page()
-    state['page'].show()
+    return state['page'].show()
 
 
 def cmd_list(**kwargs):
     from txtv.listing import list_all_articles
+    out = ''
     articles = list_all_articles()
     for art in articles:
         if art:
             title, page_nbr = art
-            print(title.ljust(36, '.'), Fore.BLUE + str(page_nbr) + Fore.RESET)
+            out += title.ljust(36, '.') + Fore.BLUE + str(page_nbr) + Fore.RESET + '\n'
+    return out
 
 
-def cmd_page(match, state=None, **kwargs):
+def cmd_page(match, state=None, cfg: configparser.ConfigParser=None, **kwargs):
     try:
         num = validate_page_nbr(match.group(0))
     except ValueError as e:
         err(str(e), fatal=(state is None))
-        return
+        return ''
     if state:
         state['page'] = Page(num)
-        state['page'].show()
+        return state['page'].show()
     else:
-        Page(num).show()
+        return Page(num).show()
 
 
 commands = [
@@ -182,7 +190,7 @@ commands = [
 
 def run():
     colorama.init()
-    cfg = get_or_gen_config()
+    cfg = get_config()
     if len(sys.argv) > 2:
         err('one arg only plz')
     if len(sys.argv) == 1:
@@ -192,7 +200,7 @@ def run():
         real_arg = apply_aliases(raw_arg, cfg)
         cmd, m = match_command(real_arg)
         if cmd:
-            cmd['func'](match=m, cfg=cfg)
+            print(cmd['func'](match=m, cfg=cfg), end='')
             sys.exit(0)
         else:
             err("That's not a command, kompis. 'txtv help' gives you a list of commands.")

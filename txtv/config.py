@@ -3,22 +3,20 @@ import configparser
 
 CONFIG_DIR = Path.home() / '.config' / 'txtv'
 CONFIG_DEFAULT_PATH = CONFIG_DIR / 'txtv.cfg'
+CONFIG_DEFAULT_VALUES = {
+    'alias' : { },
+    'general' : {
+        'prompt':       'txtv> ',
+        # 'show_top_row': 'no',
+    },
+}
 
-def get_or_gen_config(config_path: Path = CONFIG_DEFAULT_PATH):
+def get_config(config_path: Path = CONFIG_DEFAULT_PATH):
     cfg = configparser.ConfigParser()
-    if config_path.exists():
+    cfg.read_dict(CONFIG_DEFAULT_VALUES)
+    if config_path and config_path.exists():
         cfg.read_file(open(config_path, 'r'))
     else:
-        cfg['alias'] = {
-                'inrikes':'101',
-                'in':'101',
-                'utrikes':'104',
-                'ut':'104',
-                'innehåll':'700',
-                }
-        cfg['general'] = {
-                'prompt': 'txtv> ',
-                }
         if not CONFIG_DIR.exists():
             CONFIG_DIR.mkdir()
         cfg.write(open(config_path, 'w'))
@@ -31,4 +29,3 @@ def apply_aliases(txt: str, cfg: configparser.ConfigParser) -> str:
         return cfg['alias'][txt]
     else:
         return txt
-
