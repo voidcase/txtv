@@ -85,7 +85,7 @@ def interactive(start_page: Page, cfg: configparser.ConfigParser):
                 continue
             cmd, m = match_command(raw, interactive=True)
             if cmd:
-                print(cmd['func'](state=state, match=m), end='')
+                print(cmd['func'](state=state, arg=raw), end='')
             else:
                 err("That's not a command, kompis. 'help' gives you a list of commands.", fatal=False)
         except (EOFError, KeyboardInterrupt):
@@ -136,9 +136,9 @@ def cmd_list(**kwargs) -> str:
     return out
 
 
-def cmd_page(match, state: dict=None, cfg: configparser.ConfigParser=None, **kwargs) -> str:
+def cmd_page(arg: str, state: dict=None, **kwargs) -> str:
     try:
-        num = validate_page_nbr(match.group(0))
+        num = validate_page_nbr(arg)
     except ValueError as e:
         err(str(e), fatal=(state is None))
         return ''
@@ -200,7 +200,7 @@ def run():
         real_arg = apply_aliases(raw_arg, cfg)
         cmd, m = match_command(real_arg)
         if cmd:
-            print(cmd['func'](match=m, cfg=cfg), end='')
+            print(cmd['func'](arg=real_arg, cfg=cfg), end='')
             sys.exit(0)
         else:
             err("That's not a command, kompis. 'txtv help' gives you a list of commands.")
