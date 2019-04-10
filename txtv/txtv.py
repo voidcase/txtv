@@ -22,7 +22,7 @@ class Page:
             self.subpages = soup.find_all('pre', class_='root')
             pn_links = soup.find('form', id='navform').find_all('a')
             self.prev, self.next = tuple(int(a.attrs['href'][:3]) for a in pn_links)
-        except rq.exceptions.RequestException as e:
+        except rq.exceptions.RequestException:
             err(f"Could not get '{url}'.")
 
     def show(self, subpages=None) -> str:
@@ -83,7 +83,7 @@ def interactive(start_page: Page, cfg: configparser.ConfigParser):
                 raw = apply_aliases(raw, cfg)
             if raw == '':
                 continue
-            cmd, m = match_command(raw, interactive=True)
+            cmd, _ = match_command(raw, interactive=True)
             if cmd:
                 print(cmd['func'](state=state, arg=raw), end='')
             else:
@@ -198,7 +198,7 @@ def run():
     else:
         raw_arg = sys.argv[1]
         real_arg = apply_aliases(raw_arg, cfg)
-        cmd, m = match_command(real_arg)
+        cmd, _ = match_command(real_arg)
         if cmd:
             print(cmd['func'](arg=real_arg, cfg=cfg), end='')
             sys.exit(0)
