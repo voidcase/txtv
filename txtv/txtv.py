@@ -9,6 +9,7 @@ from pathlib import Path
 from txtv.util import err
 from txtv.config import get_config, apply_aliases, configparser
 
+cfg = get_config()
 
 class Page:
     def __init__(self, num: int):
@@ -27,28 +28,49 @@ class Page:
 
     def show(self, subpages=None) -> str:
         """Prints the page contained by the specified tag in color."""
-        out = ""
+
+        def _has_class(node: bs4.element.Tag, cls: str):
+            return 'class' in node.attrs and cls in node.attrs['class']
+
+        parsed = ""
         for page in subpages or self.subpages:
             for node in page:
                 if isinstance(node, str):
-                    out += str(node)
+                    # if node_idx != 0 or cfg.getboolean('show', 'svt_header'):
+                    parsed += str(node)
                     continue
                 style = ''
-                if 'DH' in node.attrs['class']:
+                if _has_class(node, 'DH'):
                     style = Fore.YELLOW + Style.BRIGHT
-                elif 'Y' in node.attrs['class']:
+                elif _has_class(node, 'Y'):
                     style = Style.DIM
-                elif 'bgB' in node.attrs['class']:
+                elif _has_class(node, 'bgB'):
                     style = Fore.BLUE
-                out += str(style + node.get_text() + Style.RESET_ALL)
-        return out
+                parsed += str(style + node.get_text() + Style.RESET_ALL)
+        # filter out stuff according to config
+        lines = parsed.splitlines()
+        filtered = ''
+        # pprint(lines)
+        for idx, line in enumerate(lines):
+            if idx == 0 and not cfg.getboolean('show', 'svt_header'):
+                pass
+            elif idx == 1 \
+                    and 'PUBLICERAD' in line \
+                    and not cfg.getboolean('show', 'publicerad_header'):
+                pass
+            elif idx == len(lines) - 1 \
+                    and re.match(r'.* [0-9]{3} +.* [0-9]{3} +.* [0-9]{3}', line) \
+                    and not cfg.getboolean('show', 'navigation_footer'):
+                pass
+            else:
+                filtered += line + '\n'
+        return filtered
 
     def next_page(self):
         return Page(self.next)
 
     def prev_page(self):
         return Page(self.prev)
-
 
 def validate_page_nbr(arg: str) -> int:
     """
@@ -72,7 +94,7 @@ def match_command(arg: str, interactive: bool=False) -> tuple:
     return None, None
 
 
-def interactive(start_page: Page, cfg: configparser.ConfigParser):
+def interactive(start_page: Page):
     print(start_page.show())
     state = dict(page=start_page)
     while True:
@@ -91,11 +113,9 @@ def interactive(start_page: Page, cfg: configparser.ConfigParser):
         except (EOFError, KeyboardInterrupt):
             exit(0)
 
-
  #####################
  # COMMAND FUNCTIONS #
  #####################
-
 
 def cmd_help(**kwargs) -> str:
     out = 'commands:\n'
@@ -190,17 +210,16 @@ commands = [
 
 def run():
     colorama.init()
-    cfg = get_config()
     if len(sys.argv) > 2:
         err('one arg only plz')
     if len(sys.argv) == 1:
-        interactive(Page(100), cfg=cfg)
+        interactive(Page(100))
     else:
         raw_arg = sys.argv[1]
         real_arg = apply_aliases(raw_arg, cfg)
         cmd, _ = match_command(real_arg)
         if cmd:
-            print(cmd['func'](arg=real_arg, cfg=cfg), end='')
+            print(cmd['func'](arg=real_arg), end='')
             sys.exit(0)
         else:
             err("That's not a command, kompis. 'txtv help' gives you a list of commands.")
