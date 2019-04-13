@@ -6,7 +6,7 @@ CONFIG_DEFAULT_PATH = CONFIG_DIR / 'txtv.cfg'
 CONFIG_DEFAULT_VALUES = {
     'alias' : { },
     'general' : {
-        'prompt': 'txtv> ',
+        'prompt': 'txtv>',
     },
     'show': {
         'svt_header': 'yes',

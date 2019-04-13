@@ -100,7 +100,7 @@ def interactive(start_page: Page):
     while True:
         try:
             prompt = cfg.get('general', 'prompt')
-            raw = input(prompt or '> ').strip().lower()
+            raw = input(prompt + ' ').strip().lower()
             if cfg:
                 raw = apply_aliases(raw, cfg)
             if raw == '':
