@@ -1,13 +1,17 @@
 # txtv - A client for reading swedish text tv in the terminal
 
-Text-tv is great! plaintext and to-the-point news with no bullshit.
+Text-tv is great! plaintext and to-the-point news with no filler.
 Now you can read it without touching your mouse or your tv-remote :)
 
 ![screenshot](https://raw.githubusercontent.com/voidcase/txtv/master/screenshot.png)
 
 ## Installation
 
+If you have Python 3.6 or later with pip installed, just run
+
 	pip install --user txtv
+
+Currently wont work natively on the Windows command line because of [readline](https://docs.python.org/3/library/readline.html); but you can use it with [Ubuntu for Windows](https://tutorials.ubuntu.com/tutorial/tutorial-ubuntu-on-windows#0).
 
 ## Usage
 
@@ -32,30 +36,50 @@ You can also give any of these commands as an argument on the normal command lin
 
 ## Configuration
 
-txtv.py will automatically generate a config file at `~/.config/txtv/txtv.cfg` with default values.
+txtv.py will automatically generate a config file at `~/.config/txtv/txtv.cfg` with default values. It uses format of [configparser](https://docs.python.org/3/library/configparser.html#supported-ini-file-structure).
+
+### alias
+
+under the alias category you can specify any number of aliases for txtv commands. These will work both in interactive mode and as subcommands when calling txtv from your shell.
+
+example:
+
+	[alias]
+		all=list
+
+will let you list all articles from shell with
+
+	txtv all
+
+or by typing `all` in interactive mode.
+
+### general
+
+So far there is only one option here, named `prompt`. It is just the prompt string used in interactive mode.
+
+example:
+
+	[general]
+		prompt = kommandorörelse>
+
+### show
+
+Here you can filter out some parts of the pages you might find unnecessary or distracting. These are all boolean variables and the accepted values are those that [configparser accepts as true/false](https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.BOOLEAN_STATES):
+
+> ... config parsers consider the following values True: '1', 'yes', 'true', 'on' and the following values False: '0', 'no', 'false', 'off'.
+
+these are all on by default.
+
+
+| Option | Description |
+| ------ | ----------- |
+| svt_header | The line at the top that looks like `100 SVT Text         Fredag 12 apr 2019`. Keep in mind that turning this off might make it hard to keep track of what page you are on in interactive mode. HMU or make a PR if you would like to see only the page number.|
+| publicerad_header | The blue line that says when the article was published (`INRIKES PUBLICERAD  12 APRIL`) |
+| navigation_footer | The bottom line that usually says `Inrikes 101 Utrikes 104 Innehåll 700`. If it does not follow this format (like when the article continues on the next page) it will still be shown. |
+
+
 Right now the most interesting thing there is aliases which work both in CLI mode and interactive mode. You can also change what your interactive prompt looks like if you care about that.
 
-## Varför är inte denna texten på svenska, din ynkrygg?
-
-Jag funderade på att skriva om readme och all text i programmet till svenska, eftersom man inte har så mycket nytta av det om man inte kan svenska ändå. Den huvudsakliga anledningen är att jag skrev det först på engelska av ren vana och har bara inte fått tummen ur nog att ändra det. Gör gärna en pull request om du känner att det är viktigt :)
-
-du kan fortfarande köra med svenska kommandon om du lägger detta i din config fil:
-
-	[alias]
-		hjälp = help
-		ut = quit
-		lista = list
-		nästa = next
-		förra = prev
-
-eller på skånska
-
-	[alias]
-		HjilpMaj = help
-		LäggAuv = quit
-		RaddaOpEt = list
-		Nista = next
-		NäeGåTebauka = prev
 
 ## Links
 
