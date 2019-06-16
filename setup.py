@@ -5,7 +5,7 @@ HERE = Path(__file__).parent
 
 README = (HERE / 'README.md').read_text()
 
-VERSION = '1.0.1'
+VERSION = '1.2.0'
 
 setup(
         name='txtv',
