@@ -118,19 +118,25 @@ def interactive(start_page: Page):
  #####################
 
 def cmd_help(**kwargs) -> str:
-    out = 'commands:\n'
+    def helpname(cmd: dict):
+        '''Returns the name to show in the help text.'''
+        if 'helpname' in cmd:
+            return cmd['helpname']
+        else:
+            return re.sub(r'\|', r' | ', cmd['pattern'])
+
+    out = Style.BRIGHT + Fore.YELLOW + 'Commands:' + Style.RESET_ALL + '\n'
     for cmd in commands:
         if 'help' in cmd:
-            if 'helpname' in cmd:
-                name = cmd['helpname']
-            else:
-                name = cmd['pattern']
-                name = re.sub(r'\|', r' | ', name)
-            out += ('{} -- {}{}\n'.format(
+            name = helpname(cmd)
+            out += ('{}{} {}-- {}{}{}\n'.format(
                 name,
+                ' '*(max(len(helpname(cmd)) for cmd in commands) - len(name)),
+                Style.DIM,
                 cmd['help'],
                 ' (only in interactive mode)'
-                    if 'interactive_only' in cmd and cmd['interactive_only'] else ''
+                    if 'interactive_only' in cmd and cmd['interactive_only'] else '',
+                Style.RESET_ALL
                 ))
     return out
 
