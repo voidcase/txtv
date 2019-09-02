@@ -111,6 +111,7 @@ def interactive(start_page: Page):
             else:
                 err("That's not a command, kompis. 'help' gives you a list of commands.", fatal=False)
         except (EOFError, KeyboardInterrupt):
+            print()
             exit(0)
 
  #####################
