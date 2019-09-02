@@ -99,6 +99,7 @@ def interactive(start_page: Page):
     state = dict(page=start_page)
     while True:
         try:
+            print()
             prompt = cfg.get('general', 'prompt')
             raw = input(prompt + ' ').strip().lower()
             if cfg:
