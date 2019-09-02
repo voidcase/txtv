@@ -11,6 +11,3 @@ beautifulsoup4 = "*"
 colorama = "*"
 requests = "*"
 txtv = {editable = true,path = "."}
-
-[requires]
-python_version = "3.7"
