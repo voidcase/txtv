@@ -9,7 +9,7 @@ Now you can read it without touching your mouse or your tv-remote :)
 
 If you have Python 3.6 or later with pip installed, just run
 
-	pip install --user txtv
+	pip3 install --user txtv
 
 Currently wont work natively on the Windows command line because of [readline](https://docs.python.org/3/library/readline.html); but you can use it with [Ubuntu for Windows](https://tutorials.ubuntu.com/tutorial/tutorial-ubuntu-on-windows#0).
 
