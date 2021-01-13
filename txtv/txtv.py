@@ -63,7 +63,7 @@ class Page:
                     and not cfg.getboolean('show', 'navigation_footer'):
                 pass
             else:
-                filtered += line + '\n'
+                filtered += line.rstrip() + '\n'
         return filtered
 
     def next_page(self):
