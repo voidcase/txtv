@@ -60,25 +60,6 @@ example:
 	[general]
 		prompt = kommandorörelse>
 
-### show
-
-Here you can filter out some parts of the pages you might find unnecessary or distracting. These are all boolean variables and the accepted values are those that [configparser accepts as true/false](https://docs.python.org/3/library/configparser.html#configparser.ConfigParser.BOOLEAN_STATES):
-
-> ... config parsers consider the following values True: '1', 'yes', 'true', 'on' and the following values False: '0', 'no', 'false', 'off'.
-
-these are all on by default.
-
-
-| Option | Description |
-| ------ | ----------- |
-| svt_header | The line at the top that looks like `100 SVT Text         Fredag 12 apr 2019`. Keep in mind that turning this off might make it hard to keep track of what page you are on in interactive mode. HMU or make a PR if you would like to see only the page number.|
-| publicerad_header | The blue line that says when the article was published (`INRIKES PUBLICERAD  12 APRIL`) |
-| navigation_footer | The bottom line that usually says `Inrikes 101 Utrikes 104 Innehåll 700`. If it does not follow this format (like when the article continues on the next page) it will still be shown. |
-
-
-Right now the most interesting thing there is aliases which work both in CLI mode and interactive mode. You can also change what your interactive prompt looks like if you care about that.
-
-
 ## Links
 
 Here is the trello for the development of txtv: https://trello.com/b/aBI0DpN3/txtv
