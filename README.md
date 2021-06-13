@@ -3,8 +3,6 @@
 Text-tv is great! plaintext and to-the-point news with no filler.
 Now you can read it without touching your mouse or your tv-remote :)
 
-![screenshot](https://raw.githubusercontent.com/voidcase/txtv/master/screenshot.png)
-
 ## Installation
 
 If you have Python 3.6 or later with pip installed, just run
