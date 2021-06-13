@@ -10,4 +10,5 @@ pytest = "*"
 beautifulsoup4 = "*"
 colorama = "*"
 requests = "*"
+urllib3 = ">=1.26.5"
 txtv = {editable = true, path = "."}
