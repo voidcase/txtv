@@ -20,57 +20,40 @@ class Page:
             if res.status_code != 200:
                 err(f'Got HTTP status code {res.status_code}.')
             soup = bs4.BeautifulSoup(res.content, 'html.parser')
-            self.subpages = soup.find_all('pre', class_='root')
-            pn_links = soup.find('form', id='navform').find_all('a')
-            self.prev, self.next = tuple(int(a.attrs['href'][:3]) for a in pn_links)
+            self.subpages = soup.find_all('div', class_='Content_screenreaderOnly__Gwyfj')
         except rq.exceptions.RequestException:
             err(f"Could not get '{url}'.")
 
     def show(self, subpages=None) -> str:
         """Prints the page contained by the specified tag in color."""
-
-        def _has_class(node: bs4.element.Tag, cls: str):
-            return 'class' in node.attrs and cls in node.attrs['class']
-
-        parsed = ""
+        out = ''
         for page in subpages or self.subpages:
-            for node in page:
-                if isinstance(node, str):
-                    # if node_idx != 0 or cfg.getboolean('show', 'svt_header'):
-                    parsed += str(node)
-                    continue
-                style = ''
-                if _has_class(node, 'DH'):
-                    style = Fore.YELLOW + Style.BRIGHT
-                elif _has_class(node, 'Y'):
-                    style = Style.DIM
-                elif _has_class(node, 'bgB'):
-                    style = Fore.BLUE
-                parsed += str(style + node.get_text() + Style.RESET_ALL)
-        # filter out stuff according to config
-        lines = parsed.splitlines()
-        filtered = ''
-        # pprint(lines)
-        for idx, line in enumerate(lines):
-            if idx == 0 and not cfg.getboolean('show', 'svt_header'):
-                pass
-            elif idx == 1 \
-                    and 'PUBLICERAD' in line \
-                    and not cfg.getboolean('show', 'publicerad_header'):
-                pass
-            elif idx == len(lines) - 1 \
-                    and re.match(r'.* [0-9]{3} +.* [0-9]{3} +.* [0-9]{3}', line) \
-                    and not cfg.getboolean('show', 'navigation_footer'):
-                pass
-            else:
-                filtered += line.rstrip() + '\n'
-        return filtered
+            pagetext: str = page.get_text()
+            pagetext = pagetext.replace('\t', '')
+            lines = pagetext.splitlines()
+            filtered = ''
+            for idx, line in enumerate(lines):
+                if idx == 0 and not cfg.getboolean('show', 'svt_header'):
+                    pass
+                elif idx == 1 \
+                        and 'PUBLICERAD' in line \
+                        and not cfg.getboolean('show', 'publicerad_header'):
+                    pass
+                elif idx == len(lines) - 1 \
+                        and re.match(r'.* [0-9]{3} +.* [0-9]{3} +.* [0-9]{3}', line) \
+                        and not cfg.getboolean('show', 'navigation_footer'):
+                    pass
+                else:
+                    filtered += line.rstrip() + '\n'
+            out += filtered
+        out = out.strip()
+        return out
 
     def next_page(self):
-        return Page(self.next)
+        return Page(self.num + 1)
 
     def prev_page(self):
-        return Page(self.prev)
+        return Page(self.num - 1)
 
 def validate_page_nbr(arg: str) -> int:
     """
@@ -88,9 +71,9 @@ def validate_page_nbr(arg: str) -> int:
 def match_command(arg: str, interactive: bool=False) -> tuple:
     for cmd in commands:
         if interactive or 'interactive_only' not in cmd or not cmd['interactive_only']:
-            m = re.fullmatch(cmd['pattern'], arg)
-            if m:
-                return cmd, m
+            match = re.fullmatch(str(cmd['pattern']), arg)
+            if match:
+                return cmd, match
     return None, None
 
 

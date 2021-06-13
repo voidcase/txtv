@@ -10,4 +10,4 @@ pytest = "*"
 beautifulsoup4 = "*"
 colorama = "*"
 requests = "*"
-txtv = {editable = true,path = "."}
+txtv = {editable = true, path = "."}

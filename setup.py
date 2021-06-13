@@ -20,7 +20,7 @@ setup(
         license='GPLv3+',
         py_modules=['txtv'],
         packages=find_packages(),
-        python_requires='>=3.6'
+        python_requires='>=3.6',
         classifiers=[
             'Programming Language :: Python :: 3',
             'Programming Language :: Python :: 3.6',
