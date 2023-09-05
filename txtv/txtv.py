@@ -20,7 +20,7 @@ class Page:
             if res.status_code != 200:
                 err(f'Got HTTP status code {res.status_code}.')
             soup = bs4.BeautifulSoup(res.content, 'html.parser')
-            self.subpages = soup.find_all('div', class_='Content_screenreaderOnly__1kao2')
+            self.subpages = soup.find_all('div', class_='Content_screenreaderOnly__3Cnkp')
         except rq.exceptions.RequestException:
             err(f"Could not get '{url}'.")
 
