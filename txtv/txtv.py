@@ -4,6 +4,7 @@ import sys
 import re
 import colorama
 import readline
+import json
 from colorama import Fore, Back, Style
 from pathlib import Path
 from txtv.util import err
@@ -14,13 +15,13 @@ cfg = get_config()
 class Page:
     def __init__(self, num: int):
         self.num = num
-        url = f'https://www.svt.se/svttext/web/pages/{num}.html'
+        url = f'https://api.teletext.ch/channels/SRF1/pages/{num}'
         try:
             res = rq.get(url)
             if res.status_code != 200:
                 err(f'Got HTTP status code {res.status_code}.')
             soup = bs4.BeautifulSoup(res.content, 'html.parser')
-            self.subpages = soup.find_all('div', class_='Content_screenreaderOnly__3Cnkp')
+            self.subpages = soup.find_all('div', class_='data')
         except rq.exceptions.RequestException:
             err(f"Could not get '{url}'.")
 
@@ -29,8 +30,10 @@ class Page:
         out = ''
         for page in subpages or self.subpages:
             pagetext: str = page.get_text()
-            pagetext = pagetext.replace('\t', '')
-            lines = pagetext.splitlines()
+            pagejson = json.loads(pagetext)
+            content = pagejson["subpages"][0]["ep1Info"]["contentText"]
+            content = content.replace('\t', '')
+            lines = content.splitlines()
             filtered = ''
             for idx, line in enumerate(lines):
                 if idx == 0 and not cfg.getboolean('show', 'svt_header'):
