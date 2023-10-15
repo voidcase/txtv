@@ -1,10 +1,10 @@
-import bs4
 import requests as rq
 import sys
 import re
 import colorama
 import readline
 import json
+import textwrap
 from colorama import Fore, Back, Style
 from pathlib import Path
 from txtv.util import err
@@ -15,41 +15,51 @@ cfg = get_config()
 class Page:
     def __init__(self, num: int):
         self.num = num
+        self.contententries = []
         url = f'https://api.teletext.ch/channels/SRF1/pages/{num}'
         try:
             res = rq.get(url)
             if res.status_code != 200:
                 err(f'Got HTTP status code {res.status_code}.')
-            soup = bs4.BeautifulSoup(res.content, 'html.parser')
-            self.subpages = soup.find_all('div', class_='data')
+            page = json.loads(res.content)
+            self.content = page["subpages"][0]["ep1Info"]["contentText"]
+
+            if not self.has_pages():
+                return
+
+            # The subtitles are written uppercase and end with a double column
+            # There can be multiple subtitles on a page (subtitle, stories, subtitle, stories, etc.)
+            stories = self.content.split(": ")
+
+            # Don't start with the title
+            for s in stories[1:]:
+                # This regex separates the stories by three digit page number
+                lines = re.findall(r'.*?\d{3}', s)
+                self.contententries += lines
+
         except rq.exceptions.RequestException:
             err(f"Could not get '{url}'.")
 
-    def show(self, subpages=None) -> str:
+    def has_pages(self) -> bool:
+        # Leaf pages have the date on top
+        return not re.search(r'\s{2,}\d{2}\.\d{2}\.\d{2}\s\d{2}:\d{2}', self.content)
+
+    def show(self) -> str:
         """Prints the page contained by the specified tag in color."""
         out = ''
-        for page in subpages or self.subpages:
-            pagetext: str = page.get_text()
-            pagejson = json.loads(pagetext)
-            content = pagejson["subpages"][0]["ep1Info"]["contentText"]
-            content = content.replace('\t', '')
-            lines = content.splitlines()
-            filtered = ''
-            for idx, line in enumerate(lines):
-                if idx == 0 and not cfg.getboolean('show', 'svt_header'):
-                    pass
-                elif idx == 1 \
-                        and 'PUBLICERAD' in line \
-                        and not cfg.getboolean('show', 'publicerad_header'):
-                    pass
-                elif idx == len(lines) - 1 \
-                        and re.match(r'.* [0-9]{3} +.* [0-9]{3} +.* [0-9]{3}', line) \
-                        and not cfg.getboolean('show', 'navigation_footer'):
-                    pass
-                else:
-                    filtered += line.rstrip() + '\n'
-            out += filtered
-        out = out.strip()
+
+        if not self.has_pages():
+            return textwrap.fill(self.content, 72)
+
+        articles = []
+        for e in self.contententries:
+            articles += [parse_content_entry(e)]
+
+        for art in articles:
+            if art:
+                title, page_nbr = art
+                out += title.ljust(37, '.') + Fore.BLUE + str(page_nbr) + Fore.RESET + '\n'
+
         return out
 
     def next_page(self):
@@ -57,6 +67,24 @@ class Page:
 
     def prev_page(self):
         return Page(self.num - 1)
+
+def list_all_articles() -> list:
+    full_listing = []
+    for nbr in [104, 130]:
+        page = Page(nbr)
+        if not page.has_pages():
+            continue
+        full_listing += [parse_content_entry(e) for e in page.contententries]
+    return full_listing
+
+def parse_content_entry(line: str) -> tuple:
+    m = re.fullmatch(r'(\* )?(.+[^.]).*[^0-9]([0-9]{3})[-f]?', line)
+
+    if m:
+        return (m.group(2).strip(), m.group(3))
+    else:
+        # raise RuntimeError(f'LINE DIDNT MATCH! {line}')
+        return None
 
 def validate_page_nbr(arg: str) -> int:
     """
@@ -140,7 +168,6 @@ def cmd_prev(state: dict, **kwargs) -> str:
 
 
 def cmd_list(**kwargs) -> str:
-    from txtv.listing import list_all_articles
     out = ''
     articles = list_all_articles()
     for art in articles:
