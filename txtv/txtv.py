@@ -1,6 +1,7 @@
 import requests as rq
 import sys
 import re
+import regex
 import colorama
 import readline
 import json
@@ -17,6 +18,12 @@ class Page:
         self.num = num
         self.contententries = []
         url = f'https://api.teletext.ch/channels/SRF1/pages/{num}'
+        self.haspages = True
+        # Either a news page (first format) or a TV page (second)
+        self.dateformat = r'(\s{2,}\d{2}\.\d{2}\.\d{2}\s\d{2}:\d{2})|(\d{2}.*\d{2}:\d{2}-\d{2}:\d{2})'
+        self.titleformat = r'(.*?\d{2}\.\d{2}\.\d{2}\s\d{2}:\d{2})|(.*\d{2}:\d{2}-\d{2}:\d{2})'
+
+
         try:
             res = rq.get(url)
             if res.status_code != 200:
@@ -24,40 +31,120 @@ class Page:
             page = json.loads(res.content)
             self.content = page["subpages"][0]["ep1Info"]["contentText"]
 
+            # Leaf pages have the date on top
+            self.haspages = not re.search(self.dateformat, self.content)
+
             if not self.has_pages():
+                # Extract and remove title from content
+                split = re.split(self.titleformat, self.content)
+                split = list(filter(None, split))
+                self.title = split[0]
+                self.content = split[1]
                 return
 
-            # The subtitles are written uppercase and end with a double column
-            # There can be multiple subtitles on a page (subtitle, stories, subtitle, stories, etc.)
-            stories = self.content.split(": ")
+            # Keep the uppercase titles
+            stories = self.content
 
-            # Don't start with the title
-            for s in stories[1:]:
-                # This regex separates the stories by three digit page number
-                lines = re.findall(r'.*?\d{3}', s)
-                self.contententries += lines
+            if self.num == 100 or self.num == 700:
+                # Remove actual titles
+                stories = re.sub("Jetzt auf SRF 1", "", stories)
+                stories = re.sub("JETZT AUF SRF 1", "", stories)
+                stories = re.sub("TELETEXT SRF 1", "", stories)
+            else:
+                # Remove all uppercase subtitles. There can be multiple
+                # subtitles on a page (subtitle, stories, subtitle, stories, etc)
+                stories = regex.sub(r'[\p{Lu}\s-]{9,}[\s:]', '', self.content)
+
+            # Find all three digit numbers, most probably these are page numbers
+            page_nrs = re.findall(r'\s(\d{3})*[-\/]*(\d{3})([^\d]|$)', stories)
+            all_page_nrs = []
+
+            for p in page_nrs:
+                try:
+                    n = int(p[0])
+                    all_page_nrs.append(n)
+                except:
+                    pass
+                try:
+                    n = int(p[1])
+                    all_page_nrs.append(n)
+                except:
+                    pass
+
+            all_page_nrs = [str(p) for p in all_page_nrs]
+
+            entries = []
+            i = 0
+            entry = ""
+
+            # Split content by whitespaces
+            chunks = stories.split()
+
+            # Include all chunks on overview/tv pages
+            if self.num != 100 and self.num != 700:
+                # Discard the title chunks (headings)
+                chunks = chunks[4:]
+                #all_page_nrs = all_page_nrs[2:]
+
+            for chunk in chunks:
+                if i+1 >= len(all_page_nrs):
+                    # Add all remaining text from that page to last chunk
+                    entry += chunk + " "
+                    continue
+
+                # Add the chunk to the current entry
+                entry += chunk + " "
+
+                # If the chunk is indeed in the list of next potential page numbers
+                if all_page_nrs[i] in chunk or chunk in all_page_nrs[i:]:
+                    # Check for ascending page numbers
+                    #if int(page_nrs[i+1]) > int(chunk):
+                    # Add the entry to the list of all entries
+                    entries.append(entry.strip())
+                    entry = ""
+                    #else:
+                    i += 1
+
+            # Add last entry with remaining text
+            entries.append(entry.strip())
+            self.contententries = entries
 
         except rq.exceptions.RequestException:
             err(f"Could not get '{url}'.")
 
     def has_pages(self) -> bool:
-        # Leaf pages have the date on top
-        return not re.search(r'\s{2,}\d{2}\.\d{2}\.\d{2}\s\d{2}:\d{2}', self.content)
+        if self.num in [100, 104, 180, 130, 500, 150, 700]:
+            return True
+        else:
+            return self.haspages
 
     def show(self) -> str:
         """Prints the page contained by the specified tag in color."""
         out = ''
 
         if not self.has_pages():
-            return textwrap.fill(self.content, 72)
+            out = '\n' + Style.BRIGHT + textwrap.fill(self.title.strip(), 37) + '\n\n' + Style.RESET_ALL
+            out += textwrap.fill(self.content.strip(), 37)
+            return out
 
         articles = []
+        append = ""
         for e in self.contententries:
-            articles += [parse_content_entry(e)]
+            parsed_entry = parse_content_entry(append + e)
+            if parsed_entry == None:
+                # No clear page number found, assume this belongs to next entry
+                append += e
+            else:
+                articles += [parsed_entry]
+                append = ''
 
+        #prev_nr = int(articles[0][1])-1
         for art in articles:
             if art:
                 title, page_nbr = art
+                # if int(prev_nr)+1 != int(page_nbr):
+                #     print("wrong article order")
+                #prev_nr = page_nbr
                 out += title.ljust(37, '.') + Fore.BLUE + str(page_nbr) + Fore.RESET + '\n'
 
         return out
@@ -78,10 +165,10 @@ def list_all_articles() -> list:
     return full_listing
 
 def parse_content_entry(line: str) -> tuple:
-    m = re.fullmatch(r'(\* )?(.+[^.]).*[^0-9]([0-9]{3})[-f]?', line)
+    m = re.fullmatch(r'(.*)\s(\d{3}[-\/]*).*', line)
 
     if m:
-        return (m.group(2).strip(), m.group(3))
+        return (m.group(1).strip(), m.group(2))
     else:
         # raise RuntimeError(f'LINE DIDNT MATCH! {line}')
         return None
